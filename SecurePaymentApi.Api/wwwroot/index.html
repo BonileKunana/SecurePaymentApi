@@ -1,0 +1,104 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecurePay | Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js" defer></script>
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" href="/">SecurePay</a>
+        <span class="environment">DEMO ENVIRONMENT</span>
+    </header>
+
+    <main class="container">
+        <section class="welcome">
+            <div>
+                <p class="eyebrow">PAYMENTS OVERVIEW</p>
+                <h1>Dashboard</h1>
+                <p class="subtitle">Manage your demo accounts and payments.</p>
+            </div>
+            <button id="refreshButton" class="secondary-button">
+                Refresh data
+            </button>
+        </section>
+
+        <section class="summary-grid" aria-label="Account summary">
+            <article class="summary-card">
+                <p>Total accounts</p>
+                <h2 id="accountCount">—</h2>
+            </article>
+            <article class="summary-card">
+                <p>Total demo balances</p>
+                <h2 id="totalBalance">—</h2>
+            </article>
+            <article class="summary-card">
+                <p>Total payments</p>
+                <h2 id="paymentCount">—</h2>
+            </article>
+        </section>
+
+        <section class="panel">
+            <div class="section-heading">
+                <div>
+                    <h2>Accounts</h2>
+                    <p>Current balances for your demo accounts.</p>
+                </div>
+            </div>
+
+            <p id="accountsMessage" class="message" role="status">
+                Loading accounts...
+            </p>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Account holder</th>
+                            <th>Account ID</th>
+                            <th>Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody id="accountsTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="section-heading">
+                <div>
+                    <h2>Recent payments</h2>
+                    <p>Your latest demo transactions.</p>
+                </div>
+            </div>
+
+            <p id="paymentsMessage" class="message" role="status">
+                Loading payments...
+            </p>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Payment ID</th>
+                            <th>From account</th>
+                            <th>To account</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="paymentsTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        SecurePay Demo · Simulated money only
+    </footer>
+</body>
+</html>

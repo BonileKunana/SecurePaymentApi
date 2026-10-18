@@ -1,0 +1,35 @@
+
+services:
+  api:
+    build:
+      context: ./SecurePaymentApi.Api
+      dockerfile: Dockerfile
+    container_name: securepayment-api
+    ports:
+      - "5174:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__PaymentDatabase: "Host=postgres;Port=5432;Database=securepayment;Username=paymentuser;Password=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in your environment}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:17
+    container_name: securepayment-postgres
+    environment:
+      POSTGRES_DB: securepayment
+      POSTGRES_USER: paymentuser
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in your environment}
+    ports:
+      - "5433:5432"
+    volumes:
+      - payment_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U paymentuser -d securepayment"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  payment_data:
