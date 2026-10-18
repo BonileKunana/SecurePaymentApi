@@ -26,6 +26,50 @@
             </button>
         </section>
 
+
+        <section class="panel send-money-panel">
+            <div class="section-heading">
+                <div>
+                    <h2>Send Money</h2>
+                    <p>Transfer simulated funds between demo accounts.</p>
+                </div>
+            </div>
+
+            <form id="paymentForm">
+                <div class="form-group">
+                    <label for="fromAccount">From account</label>
+                    <select id="fromAccount" name="fromAccount" required>
+                        <option value="">Select sender</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="toAccount">To account</label>
+                    <select id="toAccount" name="toAccount" required>
+                        <option value="">Select recipient</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="amount">Amount (ZAR)</label>
+                    <input id="amount"
+                           name="amount"
+                           type="number"
+                           min="0.01"
+                           step="0.01"
+                           placeholder="e.g. 150.00"
+                           required>
+                </div>
+
+                <button type="submit" id="sendPaymentButton">
+                    Send payment
+                </button>
+
+                <p id="paymentFormMessage" class="message" role="status"></p>
+            </form>
+        </section>
+
+
         <section class="summary-grid" aria-label="Account summary">
             <article class="summary-card">
                 <p>Total accounts</p>

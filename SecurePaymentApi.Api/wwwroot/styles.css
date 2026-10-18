@@ -236,3 +236,127 @@ footer {
         padding: 16px;
     }
 }
+
+
+/* Send Money - dedicated payment card */
+.send-money-panel {
+    padding: 30px;
+    border-top: 4px solid #5267bc;
+    background: linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
+}
+
+    .send-money-panel .section-heading {
+        margin-bottom: 26px;
+    }
+
+        .send-money-panel .section-heading h2 {
+            color: #243b80;
+            font-size: 23px;
+            letter-spacing: -0.5px;
+        }
+
+        .send-money-panel .section-heading p {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+#paymentForm {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+    align-items: end;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+    .form-group label {
+        color: #39445a;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        min-height: 50px;
+        padding: 12px 14px;
+        border: 1px solid #dce1ed;
+        border-radius: 10px;
+        background: #ffffff;
+        color: #172033;
+        font: inherit;
+        font-size: 14px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #5267bc;
+            box-shadow: 0 0 0 4px rgb(82 103 188 / 12%);
+        }
+
+        .form-group input::placeholder {
+            color: #a0a8b8;
+        }
+
+    .form-group:has(#amount) input {
+        min-height: 62px;
+        background: #f5f7ff;
+        border-color: #cbd4f3;
+        color: #243b80;
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+#sendPaymentButton {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-height: 52px;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 10px;
+    background: #243b80;
+    color: #ffffff;
+    font: inherit;
+    font-weight: 700;
+    box-shadow: 0 5px 12px rgb(36 59 128 / 18%);
+    transition: background 0.2s, transform 0.2s;
+}
+
+    #sendPaymentButton:hover:not(:disabled) {
+        background: #192d68;
+        transform: translateY(-1px);
+    }
+
+    #sendPaymentButton:disabled {
+        cursor: not-allowed;
+        opacity: 0.65;
+        box-shadow: none;
+    }
+
+#paymentFormMessage {
+    grid-column: 1 / -1;
+    margin: 0;
+    line-height: 1.6;
+}
+
+@media (max-width: 700px) {
+    .send-money-panel {
+        padding: 20px 16px;
+    }
+
+    #paymentForm {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    #sendPaymentButton {
+        grid-column: 1;
+    }
+}
+

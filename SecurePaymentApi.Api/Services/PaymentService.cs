@@ -3,10 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using SecurePaymentApi.Api.Data;
 using SecurePaymentApi.Api.DTOs;
 using SecurePaymentApi.Api.Models;
-namespace SecurePaymentApi.Api.Services;
 using Npgsql;
 
-public class PaymentService(PaymentDbContext dbContext)
+namespace SecurePaymentApi.Api.Services;
+
+public class PaymentService(PaymentDbContext dbContext) : IPaymentService
 {
     public async Task<PaymentResponse> CreatePaymentAsync(
         CreatePaymentRequest request,
@@ -36,6 +37,7 @@ public class PaymentService(PaymentDbContext dbContext)
 
         // Check whether this key was already used.
         var existingPayment = await dbContext.Payments
+            .AsNoTracking()
             .SingleOrDefaultAsync(
                 p => p.IdempotencyKey == request.IdempotencyKey,
                 cancellationToken);
@@ -61,7 +63,7 @@ public class PaymentService(PaymentDbContext dbContext)
                 existingPayment.CreatedAtUtc);
         }
 
-        // Keep the balance changes and payment record in one transaction.
+        // Keep balance changes and the payment record in one transaction.
         await using var transaction =
             await dbContext.Database.BeginTransactionAsync(
                 cancellationToken);
@@ -84,18 +86,17 @@ public class PaymentService(PaymentDbContext dbContext)
 
         if (sender.Balance < request.Amount)
         {
-            throw new InvalidOperationException(
-                "Insufficient funds.");
+            throw new InvalidOperationException("Insufficient funds.");
         }
 
-        // Update both account balances.
+        // Update both account balances and concurrency versions.
         sender.Balance -= request.Amount;
         sender.Version = Guid.NewGuid();
 
         recipient.Balance += request.Amount;
         recipient.Version = Guid.NewGuid();
 
-        // Store the exact key supplied by the client.
+        // Create the payment record.
         var payment = new Payment
         {
             IdempotencyKey = request.IdempotencyKey,
@@ -118,10 +119,44 @@ public class PaymentService(PaymentDbContext dbContext)
         {
             await transaction.RollbackAsync(cancellationToken);
 
+            // Clear tracked entities before querying again.
+            dbContext.ChangeTracker.Clear();
+
+            // Look for the payment that won the race.
+            var duplicatePayment = await dbContext.Payments
+                .AsNoTracking()
+                .SingleOrDefaultAsync(
+                    p => p.IdempotencyKey == request.IdempotencyKey,
+                    cancellationToken);
+
+            if (duplicatePayment is not null &&
+                duplicatePayment.FromAccountId == request.FromAccountId &&
+                duplicatePayment.ToAccountId == request.ToAccountId &&
+                duplicatePayment.Amount == request.Amount)
+            {
+                return new PaymentResponse(
+                    duplicatePayment.Id,
+                    duplicatePayment.FromAccountId,
+                    duplicatePayment.ToAccountId,
+                    duplicatePayment.Amount,
+                    duplicatePayment.Status,
+                    duplicatePayment.CreatedAtUtc);
+            }
+
             throw new InvalidOperationException(
-                "A payment with this idempotency key has already been processed.",
+                "The idempotency key has already been used or a database constraint was violated.",
                 ex);
         }
+
+        catch (DbUpdateConcurrencyException ex)
+        {
+            await transaction.RollbackAsync(cancellationToken);
+
+            throw new PaymentConcurrencyException(
+                "The account balance changed during this payment. Please refresh and try again.",
+                ex);
+        }
+
 
         return new PaymentResponse(
             payment.Id,

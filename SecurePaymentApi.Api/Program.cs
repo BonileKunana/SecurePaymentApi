@@ -15,6 +15,9 @@ builder.Services.AddDbContext<PaymentDbContext>(options =>
     options.UseNpgsql(connectionString));
 
 builder.Services.AddScoped<PaymentService>();
+builder.Services.AddScoped<IPaymentService>(
+    services => services.GetRequiredService<PaymentService>());
+
 
 
 // Add services to the container.
@@ -56,7 +59,7 @@ app.MapGet("/weatherforecast", () =>
 
 app.MapPost("/payments", async (
     CreatePaymentRequest request,
-    PaymentService paymentService,
+    IPaymentService paymentService,
     CancellationToken cancellationToken) =>
 {
     try
@@ -74,10 +77,17 @@ app.MapPost("/payments", async (
     {
         return Results.NotFound(new { error = ex.Message });
     }
+
+    catch (PaymentConcurrencyException ex)
+    {
+        return Results.Conflict(new { error = ex.Message });
+    }
+
     catch (InvalidOperationException ex)
     {
         return Results.BadRequest(new { error = ex.Message });
     }
+
 });
 
 if (app.Environment.IsDevelopment())
@@ -162,3 +172,5 @@ record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 }
+
+public partial class Program { }
